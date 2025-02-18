@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             FoodSeeder::class,
             StandSeeder::class,
             CartSeeder::class,
+            OrderSeeder::class,
         ]);
     }
 }

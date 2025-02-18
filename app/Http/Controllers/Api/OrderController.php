@@ -21,7 +21,6 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        // Ambil semua item dari cart user
         $cartItems = Cart::where('user_id', auth()->id())->get();
 
         if ($cartItems->isEmpty()) {

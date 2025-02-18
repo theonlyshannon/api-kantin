@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\StandController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Models\Food;
+use App\Models\User;
 
 
 Route::post('register', [AuthController::class, 'register']);
@@ -24,6 +27,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+
+    // Tambahkan route baru untuk dashboard stats
+    Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
 });
 
 Route::apiResource('foods', FoodController::class);

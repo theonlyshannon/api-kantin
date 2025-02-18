@@ -26,17 +26,28 @@ class FoodController extends Controller
      */
     public function store(FoodStoreRequest $request)
     {
-        $request = $request->validated();
+        $validated = $request->validated();
 
         $food = new Food();
-        $food->name = $request['name'];
-        $food->slug = $request['slug'];
-        $food->description = $request['description'];
-        $food->price = $request['price'];
-        $food->is_discount = $request['is_discount'];
-        $food->discount = $request['discount'] ?? 0;
-        $food->discount_price = $request['discount_price'] ?? 0;
+        $food->name = $validated['name'];
+        $food->slug = $validated['slug'];
+        $food->description = $validated['description'];
+        $food->price = $validated['price'];
 
+        // Penanganan diskon
+        $food->is_discount = $validated['is_discount'] ?? false;
+
+        if ($food->is_discount) {
+            $food->discount = $validated['discount'] ?? 0;
+            // Hitung harga diskon
+            $discountAmount = ($validated['price'] * ($validated['discount'] ?? 0)) / 100;
+            $food->discount_price = $validated['price'] - $discountAmount;
+        } else {
+            $food->discount = 0;
+            $food->discount_price = 0;
+        }
+
+        // Penanganan upload gambar
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
@@ -74,17 +85,29 @@ class FoodController extends Controller
             return ResponseHelper::jsonResponse(false, 'Food not found', null, 404);
         }
 
-        $request = $request->validated();
+        $validated = $request->validated();
 
-        $food->name = $request['name'];
-        $food->slug = $request['slug'];
-        $food->description = $request['description'];
-        $food->price = $request['price'];
-        $food->is_discount = $request['is_discount'];
-        $food->discount = $request['discount'] ?? 0;
-        $food->discount_price = $request['discount_price'] ?? 0;
+        $food->name = $validated['name'];
+        $food->slug = $validated['slug'];
+        $food->description = $validated['description'];
+        $food->price = $validated['price'];
 
+        // Penanganan diskon
+        $food->is_discount = $validated['is_discount'] ?? false;
+
+        if ($food->is_discount) {
+            $food->discount = $validated['discount'] ?? 0;
+            // Hitung harga diskon
+            $discountAmount = ($validated['price'] * ($validated['discount'] ?? 0)) / 100;
+            $food->discount_price = $validated['price'] - $discountAmount;
+        } else {
+            $food->discount = 0;
+            $food->discount_price = 0;
+        }
+
+        // Penanganan upload gambar
         if ($request->hasFile('image')) {
+            // Hapus gambar lama jika ada
             if ($food->image) {
                 Storage::delete('public/' . $food->image);
             }

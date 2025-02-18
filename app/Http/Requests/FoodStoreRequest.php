@@ -12,10 +12,10 @@ class FoodStoreRequest extends FormRequest
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'name' => 'required|string|max:255|unique:foods,name',
             'slug' => 'required|string|max:255|unique:foods,slug',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
             'price' => 'required|integer|min:0',
             'is_discount' => 'boolean',
-            'discount' => 'nullable|numeric|between:0,100',
+            'discount' => 'required_if:is_discount,true|numeric|between:0,100|nullable',
             'discount_price' => 'nullable|integer|min:0',
         ];
     }

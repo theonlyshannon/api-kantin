@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Food;
 use Illuminate\Support\Str;
+use App\Helpers\ImageHelper\ImageHelper;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Food>
@@ -21,8 +22,11 @@ class FoodFactory extends Factory
         $discount = $isDiscount ? $this->faker->randomFloat(2, 5, 50) : null;
         $discountPrice = $isDiscount ? $price - ($price * ($discount / 100)) : null;
 
+        $imageHelper = new ImageHelper();
+        $image = $imageHelper->createDummyImageWithTextSizeAndPosition(640, 480, 'center', 'center', null, 'medium');
+
         return [
-            'image' => $this->faker->imageUrl(640, 480, 'food'),
+            'image' => $image->getPathname(),
             'name' => $name,
             'slug' => Str::slug($name),
             'description' => $this->faker->sentence(),
