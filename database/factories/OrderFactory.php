@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Order;
 use App\Models\User;
-use App\Models\Cart;
+use App\Models\Food;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OrderFactory extends Factory
@@ -13,24 +13,13 @@ class OrderFactory extends Factory
 
     public function definition(): array
     {
-        $user = User::inRandomOrder()->first() ?? User::factory()->create();
-
-        $carts = Cart::where('user_id', $user->id)->get();
-
-        if ($carts->isEmpty()) {
-            return [
-                'user_id' => $user->id, // Pastikan user_id diisi
-                'total_price' => 0, // Set total_price ke 0 jika cart kosong
-                'status' => 'order',
-            ];
-        }
-
-        $totalPrice = $carts->sum(fn ($cart) => $cart->food->price * $cart->quantity);
-
         return [
-            'user_id' => $user->id, // Pastikan user_id diisi
-            'total_price' => $totalPrice,
-            'status' => 'order',
+            'user_id' => User::inRandomOrder()->first()->id ?? User::factory(),
+            'food_id' => Food::inRandomOrder()->first()->id ?? Food::factory(),
+            'quantity' => $this->faker->numberBetween(1, 5),
+            'total_price' => $this->faker->numberBetween(5000, 50000),
+            'status' => $this->faker->randomElement(['pending', 'order', 'success']),
         ];
     }
 }
+

@@ -23,15 +23,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/cart/{cart}', [CartController::class, 'update']);
     Route::delete('/cart/{cart}', [CartController::class, 'destroy']);
 
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::post('/orders', [OrderController::class, 'store']);
-    Route::get('/orders/{id}', [OrderController::class, 'show']);
-    Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
-
-    // Tambahkan route baru untuk dashboard stats
-    Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
 });
 
 Route::apiResource('foods', FoodController::class);
 Route::apiResource('stands', StandController::class);
 Route::apiResource('users', UserController::class);
+
+Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
+
+Route::get('/orders', [OrderController::class, 'index']);
+Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+

@@ -34,31 +34,29 @@ class FoodController extends Controller
         $food->description = $validated['description'];
         $food->price = $validated['price'];
 
-        // Penanganan diskon
         $food->is_discount = $validated['is_discount'] ?? false;
 
         if ($food->is_discount) {
             $food->discount = $validated['discount'] ?? 0;
-            // Hitung harga diskon
-            $discountAmount = ($validated['price'] * ($validated['discount'] ?? 0)) / 100;
+            $discountAmount = ($validated['price'] * $food->discount) / 100;
             $food->discount_price = $validated['price'] - $discountAmount;
         } else {
             $food->discount = 0;
-            $food->discount_price = 0;
+            $food->discount_price = $validated['price'];
         }
 
-        // Penanganan upload gambar
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->storeAs('public/food', $imageName);
-            $food->image = 'food/' . $imageName;
+            $imagePath = $image->storeAs('food', $imageName, 'public');
+            $food->image = 'storage/' . $imagePath;
         }
 
         $food->save();
 
         return ResponseHelper::jsonResponse(true, 'Food created successfully', new FoodResource($food), 201);
     }
+
 
     /**
      * Display the specified resource.
@@ -77,14 +75,8 @@ class FoodController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(FoodUpdateRequest $request, string $id)
+    public function update(FoodStoreRequest $request, Food $food)
     {
-        $food = Food::find($id);
-
-        if (!$food) {
-            return ResponseHelper::jsonResponse(false, 'Food not found', null, 404);
-        }
-
         $validated = $request->validated();
 
         $food->name = $validated['name'];
@@ -97,31 +89,32 @@ class FoodController extends Controller
 
         if ($food->is_discount) {
             $food->discount = $validated['discount'] ?? 0;
-            // Hitung harga diskon
-            $discountAmount = ($validated['price'] * ($validated['discount'] ?? 0)) / 100;
+            $discountAmount = ($validated['price'] * $food->discount) / 100;
             $food->discount_price = $validated['price'] - $discountAmount;
         } else {
             $food->discount = 0;
-            $food->discount_price = 0;
+            $food->discount_price = $validated['price'];
         }
 
-        // Penanganan upload gambar
+        // Penanganan update gambar
         if ($request->hasFile('image')) {
             // Hapus gambar lama jika ada
             if ($food->image) {
-                Storage::delete('public/' . $food->image);
+                $oldImagePath = str_replace('storage/', 'public/', $food->image);
+                Storage::delete($oldImagePath);
             }
 
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->storeAs('public/food', $imageName);
-            $food->image = 'food/' . $imageName;
+            $imagePath = $image->storeAs('food', $imageName, 'public');
+            $food->image = 'storage/' . $imagePath;
         }
 
         $food->save();
 
         return ResponseHelper::jsonResponse(true, 'Food updated successfully', new FoodResource($food), 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
