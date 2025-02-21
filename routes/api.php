@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Food;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
@@ -7,9 +9,8 @@ use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\StandController;
+use App\Http\Controllers\Api\HistoryController;
 use App\Http\Controllers\Api\DashboardController;
-use App\Models\Food;
-use App\Models\User;
 
 
 Route::post('register', [AuthController::class, 'register']);
@@ -30,6 +31,8 @@ Route::apiResource('stands', StandController::class);
 Route::apiResource('users', UserController::class);
 
 Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
+
+Route::get('/history', [HistoryController::class, 'index']);
 
 Route::get('/orders', [OrderController::class, 'index']);
 Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);
