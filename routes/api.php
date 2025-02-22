@@ -24,15 +24,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/cart/{cart}', [CartController::class, 'update']);
     Route::delete('/cart/{cart}', [CartController::class, 'destroy']);
 
+    Route::post('/order', [OrderController::class, 'store']);
+
+    Route::get('/history', [HistoryController::class, 'index']);
+    Route::get('/history/monthly-summary', [HistoryController::class, 'monthlySummary']);
 });
 
 Route::apiResource('foods', FoodController::class);
 Route::apiResource('stands', StandController::class);
 Route::apiResource('users', UserController::class);
 
-Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
-
 Route::get('/history', [HistoryController::class, 'index']);
+Route::get('/history/monthly-summary', [HistoryController::class, 'monthlySummary']);
+
+Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
 
 Route::get('/orders', [OrderController::class, 'index']);
 Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);

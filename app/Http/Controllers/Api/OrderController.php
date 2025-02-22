@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
+use App\Models\Food;
+use Illuminate\Support\Facades\Log; // Menambahkan import untuk Log
 
 class OrderController extends Controller
 {
@@ -23,19 +25,48 @@ class OrderController extends Controller
             'status' => 'required|in:pending,order,success',
         ]);
 
-        // Cari order berdasarkan ID
         $order = Order::find($id);
 
         if (!$order) {
             return ResponseHelper::jsonResponse(false, 'Order not found', null, 404);
         }
 
-        // Update status order
         $order->update(['status' => $request->status]);
 
         return ResponseHelper::jsonResponse(true, 'Order status updated successfully', new OrderResource($order), 200);
     }
 
+    public function store(Request $request)
+    {
+        $request->validate([
+            'food_id' => 'required|exists:foods,id',
+            'quantity' => 'required|integer|min:1'
+        ]);
 
+        // Ambil data makanan untuk mendapatkan harga
+        $food = Food::findOrFail($request->food_id);
+
+        // Hitung total harga
+        $total_price = $food->price * $request->quantity;
+
+        try {
+            $order = Order::create([
+                'user_id' => auth()->id(),
+                'food_id' => $request->food_id,
+                'quantity' => $request->quantity,
+                'total_price' => $total_price,
+                'status' => 'pending'
+            ]);
+
+            return ResponseHelper::jsonResponse(
+                true,
+                'Order created successfully',
+                new OrderResource($order),
+                201
+            );
+        } catch (\Throwable $e) {
+            Log::error('Error creating order: ' . $e->getMessage()); // Menggunakan Log yang sudah diimpor
+            return ResponseHelper::jsonResponse(false, 'Terjadi kesalahan saat membuat pesanan', null, 500);
+        }
+    }
 }
-

@@ -25,4 +25,9 @@ class Food extends Model
         'is_discount' => 'boolean',
         'discount' => 'decimal:4',
     ];
+
+    public function stand()
+    {
+        return $this->belongsTo(Stand::class);
+    }
 }
