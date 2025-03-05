@@ -43,10 +43,8 @@ class OrderController extends Controller
             'quantity' => 'required|integer|min:1'
         ]);
 
-        // Ambil data makanan untuk mendapatkan harga
         $food = Food::findOrFail($request->food_id);
 
-        // Hitung total harga
         $total_price = $food->price * $request->quantity;
 
         try {

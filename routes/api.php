@@ -17,7 +17,9 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/me', [AuthController::class, 'me']);
     Route::post('logout', [AuthController::class, 'logout']);
+
 
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/cart', [CartController::class, 'store']);
@@ -29,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/history', [HistoryController::class, 'index']);
     Route::get('/history/monthly-summary', [HistoryController::class, 'monthlySummary']);
 });
+
 
 Route::apiResource('foods', FoodController::class);
 Route::apiResource('stands', StandController::class);

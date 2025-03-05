@@ -61,4 +61,14 @@ class AuthController extends Controller
 
         return ResponseHelper::jsonResponse(true, 'User logged out successfully', null, 200);
     }
+
+    public function me(Request $request)
+    {
+        try {
+            $user = $request->user();
+            return ResponseHelper::jsonResponse(true, 'Data user berhasil diambil', new AuthResource($user), 200);
+        } catch (\Exception $e) {
+            return ResponseHelper::jsonResponse(false, 'Terjadi kesalahan sistem', null, 500);
+        }
+    }
 }
