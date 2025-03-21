@@ -14,25 +14,21 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // Permissions untuk Food
         Permission::firstOrCreate(['name' => 'list-foods']);
         Permission::firstOrCreate(['name' => 'create-foods']);
         Permission::firstOrCreate(['name' => 'edit-foods']);
         Permission::firstOrCreate(['name' => 'delete-foods']);
 
-        // Permissions untuk Stand
         Permission::firstOrCreate(['name' => 'list-stands']);
         Permission::firstOrCreate(['name' => 'create-stands']);
         Permission::firstOrCreate(['name' => 'edit-stands']);
         Permission::firstOrCreate(['name' => 'delete-stands']);
 
-        // Permissions untuk User
         Permission::firstOrCreate(['name' => 'list-users']);
         Permission::firstOrCreate(['name' => 'create-users']);
         Permission::firstOrCreate(['name' => 'edit-users']);
         Permission::firstOrCreate(['name' => 'delete-users']);
 
-        // Sync permissions dengan role
         $studentRole = Role::where('name', 'Student')->first();
         $studentRole->givePermissionTo([
             'list-foods',

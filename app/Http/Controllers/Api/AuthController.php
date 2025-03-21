@@ -22,6 +22,14 @@ class AuthController extends Controller
                 return ResponseHelper::jsonResponse(false, 'Email atau password salah', null, 401);
             }
 
+            if ($user->hasRole('Stand')) {
+                $user->load('stand');
+
+                if (!$user->stand) {
+                    return ResponseHelper::jsonResponse(false, 'Akun stand tidak ditemukan', null, 401);
+                }
+            }
+
             $token = $user->createToken('api-token')->plainTextToken;
 
             $response = [
@@ -42,6 +50,30 @@ class AuthController extends Controller
             $validated['password'] = bcrypt($validated['password']);
 
             $user = User::create($validated);
+
+            // Check if stand data is present in the request
+            if ($request->has('stand_name') && $request->has('stand_slug')) {
+                // Assign Stand role
+                $user->assignRole('Stand');
+
+                $standData = $request->validate([
+                    'stand_name' => 'required|string|max:255',
+                    'stand_slug' => 'required|string|unique:stands,slug',
+                    'stand_description' => 'nullable|string',
+                ]);
+
+                $user->stand()->create([
+                    'name' => $standData['stand_name'],
+                    'slug' => $standData['stand_slug'],
+                    'description' => $standData['stand_description'] ?? null,
+                ]);
+
+                $user->load('stand');
+            } else {
+                // Assign default Student role
+                $user->assignRole('Student');
+            }
+
             $token = $user->createToken('api-token')->plainTextToken;
 
             $response = [
