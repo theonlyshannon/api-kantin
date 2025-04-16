@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AuthResource;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\RegisterRequest;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -18,7 +19,11 @@ class AuthController extends Controller
         try {
             $user = User::where('email', $request->email)->first();
 
-            if (!$user || !Hash::check($request->password, $user->password)) {
+            if (!$user) {
+                return ResponseHelper::jsonResponse(false, 'Email atau password salah', null, 401);
+            }
+
+            if (!Hash::check($request->password, $user->password)) {
                 return ResponseHelper::jsonResponse(false, 'Email atau password salah', null, 401);
             }
 
@@ -39,7 +44,8 @@ class AuthController extends Controller
 
             return ResponseHelper::jsonResponse(true, 'Login berhasil', $response, 200);
         } catch (\Exception $e) {
-            return ResponseHelper::jsonResponse(false, 'Terjadi kesalahan sistem', null, 500);
+            Log::error('Login error: ' . $e->getMessage());
+            return ResponseHelper::jsonResponse(false, 'Terjadi kesalahan sistem: ' . $e->getMessage(), null, 500);
         }
     }
 
@@ -51,9 +57,7 @@ class AuthController extends Controller
 
             $user = User::create($validated);
 
-            // Check if stand data is present in the request
             if ($request->has('stand_name') && $request->has('stand_slug')) {
-                // Assign Stand role
                 $user->assignRole('Stand');
 
                 $standData = $request->validate([
@@ -70,7 +74,6 @@ class AuthController extends Controller
 
                 $user->load('stand');
             } else {
-                // Assign default Student role
                 $user->assignRole('Student');
             }
 
@@ -81,26 +84,40 @@ class AuthController extends Controller
                 'token' => $token
             ];
 
-            return ResponseHelper::jsonResponse(true, 'User registered successfully', $response, 201);
+            return ResponseHelper::jsonResponse(true, 'Registrasi berhasil', $response, 201);
         } catch (\Exception $e) {
-            return ResponseHelper::jsonResponse(false, 'Terjadi kesalahan saat registrasi', null, 500);
+            Log::error('Register error: ' . $e->getMessage());
+            return ResponseHelper::jsonResponse(false, 'Terjadi kesalahan saat registrasi: ' . $e->getMessage(), null, 500);
         }
     }
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
-
-        return ResponseHelper::jsonResponse(true, 'User logged out successfully', null, 200);
+        try {
+            $request->user()->currentAccessToken()->delete();
+            return ResponseHelper::jsonResponse(true, 'Berhasil logout', null, 200);
+        } catch (\Exception $e) {
+            Log::error('Logout error: ' . $e->getMessage());
+            return ResponseHelper::jsonResponse(false, 'Terjadi kesalahan saat logout', null, 500);
+        }
     }
 
     public function me(Request $request)
     {
         try {
             $user = $request->user();
+            if (!$user) {
+                return ResponseHelper::jsonResponse(false, 'User tidak ditemukan', null, 401);
+            }
+
+            if ($user->hasRole('Stand')) {
+                $user->load('stand');
+            }
+
             return ResponseHelper::jsonResponse(true, 'Data user berhasil diambil', new AuthResource($user), 200);
         } catch (\Exception $e) {
-            return ResponseHelper::jsonResponse(false, 'Terjadi kesalahan sistem', null, 500);
+            Log::error('Me endpoint error: ' . $e->getMessage());
+            return ResponseHelper::jsonResponse(false, 'Terjadi kesalahan sistem: ' . $e->getMessage(), null, 500);
         }
     }
 }
