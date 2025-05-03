@@ -79,6 +79,9 @@ class AuthController extends Controller
 
             $token = $user->createToken('api-token')->plainTextToken;
 
+            $user->refresh();
+            $user->load('roles');
+
             $response = [
                 'user' => new AuthResource($user),
                 'token' => $token
@@ -109,6 +112,8 @@ class AuthController extends Controller
             if (!$user) {
                 return ResponseHelper::jsonResponse(false, 'User tidak ditemukan', null, 401);
             }
+
+            $user->load('roles');
 
             if ($user->hasRole('Stand')) {
                 $user->load('stand');

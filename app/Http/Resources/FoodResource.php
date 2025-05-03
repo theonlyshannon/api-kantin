@@ -14,9 +14,19 @@ class FoodResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $imageUrl = null;
+        if ($this->image) {
+            // Cek apakah sudah berisi URL lengkap
+            if (str_starts_with($this->image, 'http') || str_starts_with($this->image, 'storage/')) {
+                $imageUrl = $this->image;
+            } else {
+                $imageUrl = url($this->image);
+            }
+        }
+
         return [
             'id' => $this->id,
-            'image' => $this->image ? asset('storage/' . $this->image) : null,
+            'image' => $imageUrl,
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,

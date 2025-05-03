@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             AccountSeeder::class,
             // UserSeeder::class,
-            // FoodSeeder::class,
+            FoodSeeder::class,
             // StandSeeder::class,
             // OrderSeeder::class,
         ]);
